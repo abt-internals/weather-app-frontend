@@ -1,9 +1,15 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -49,279 +55,356 @@ const countryStateCity: Record<string, Record<string, string[]>> = {
 };
 
 export default function RegistrationForm() {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({
+  const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      userName: "",
+      email: "",
+      password: "",
+      mobile: "",
+      dob: "",
+      gender: undefined,
+      country: "",
+      state: "",
+      city: "",
+      pincode: "",
+      permanentAddress: "",
+      temperaryAddress: "",
+    },
   });
 
   const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-
-  const selectedCountry = watch("country");
-  const selectedState = watch("state");
+  const selectedCountry = form.watch("country");
 
   const handleCountryChange = (value: string) => {
-    setValue("country", value);
+    form.setValue("country", value);
     const newStates = countryStateCity[value]
       ? Object.keys(countryStateCity[value])
       : [];
     setStates(newStates);
     setCities([]);
-    setValue("state", "");
-    setValue("city", "");
+    form.setValue("state", "");
+    form.setValue("city", "");
   };
 
   const handleStateChange = (value: string) => {
-    setValue("state", value);
+    form.setValue("state", value);
     const newCities =
       selectedCountry && countryStateCity[selectedCountry]?.[value]
         ? countryStateCity[selectedCountry][value]
         : [];
     setCities(newCities);
-    setValue("city", "");
+    form.setValue("city", "");
   };
 
-  const handleGenderChange = (value: string) => {
-    setValue("gender", value as "Male" | "Female" | "Other");
-  };
-
-  const onSubmit = (data: unknown) => {
+  const onSubmit = (data: z.infer<typeof schema>) => {
     console.log("Form Data:", data);
   };
 
   return (
-    <Card className="mx-auto mt-10 max-w-lg rounded-lg bg-white p-6 shadow-md">
-      <CardContent>
-        <h2 className="mb-4 text-center font-semibold text-2xl">
-          Registration Form
-        </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2">
-                First Name <span className="text-red-500">*</span>
-              </Label>
-              <Input className="w-full" {...register("firstName")} />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm">
-                  {errors.firstName.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <Label className="mb-2">
-                Last Name <span className="text-red-500">*</span>
-              </Label>
-              <Input className="w-full" {...register("lastName")} />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </div>
-          </div>
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-2xl">
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2">
-                User Name <span className="text-red-500">*</span>
-              </Label>
-              <Input className="w-full" {...register("userName")} />
-              {errors.userName && (
-                <p className="text-red-500 text-sm">
-                  {errors.userName.message}
-                </p>
-              )}
-            </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="userName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        User Name <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="mobile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Mobile Number <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <div>
-              <Label className="mb-2">
-                Mobile Number <span className="text-red-500">*</span>
-              </Label>
-              <Input className="w-full" {...register("mobile")} />
-              {errors.mobile && (
-                <p className="text-red-500 text-sm">{errors.mobile.message}</p>
-              )}
-            </div>
-          </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Email <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Password <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2">
-                Email <span className="text-red-500">*</span>
-              </Label>
-              <Input className="w-full" type="email" {...register("email")} />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
-              )}
-            </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <div>
-              <Label className="mb-2">
-                Password <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                className="w-full"
-                type="password"
-                {...register("password")}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          handleCountryChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.keys(countryStateCity).map((country) => (
+                            <SelectItem key={country} value={country}>
+                              {country}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          handleStateChange(value);
+                        }}
+                        value={field.value}
+                        disabled={!states.length}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select State" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {states.map((state) => (
+                            <SelectItem key={state} value={state}>
+                              {state}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={!cities.length}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select City" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="pincode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Pincode <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="pincode" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="temperaryAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Temperary Address <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <textarea
+                        className="w-full rounded-md border-2 border-stone-200 p-2"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.password && (
-                <p className="text-red-500 text-sm">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2">Date of Birth</Label>
-              <Input className="w-full" type="date" {...register("dob")} />
-            </div>
-
-            <div>
-              <Label className="mb-2">Gender</Label>
-              <Select
-                onValueChange={handleGenderChange}
-                value={watch("gender")}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.gender && (
-                <p className="text-red-500 text-sm">{errors.gender.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2">Country</Label>
-              <Select
-                onValueChange={handleCountryChange}
-                value={selectedCountry}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(countryStateCity).map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-2">State</Label>
-              <Select
-                onValueChange={handleStateChange}
-                value={selectedState}
-                disabled={!states.length}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select State" />
-                </SelectTrigger>
-                <SelectContent>
-                  {states.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-2 ">City</Label>
-              <Select
-                onValueChange={(value) => setValue("city", value)}
-                value={watch("city")}
-                disabled={!cities.length}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select City" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-2">
-                Pincode <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                className="w-full"
-                type="pincode"
-                {...register("pincode")}
+              <FormField
+                control={form.control}
+                name="permanentAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Permanent Address <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <textarea
+                        className="w-full rounded-md border-2 border-stone-200 p-2"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.pincode && (
-                <p className="text-red-500 text-sm">{errors.pincode.message}</p>
-              )}
-            </div>
-          </div>
 
-          <div>
-            <Label className="mb-2">
-              Temperary Address <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              className="w-full"
-              type="message"
-              {...register("temperaryAddress")}
-            />
-            {errors.temperaryAddress && (
-              <p className="text-red-500 text-sm">
-                {errors.temperaryAddress.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label className="mb-2">
-              Permanent Address <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              className="w-full"
-              type="message"
-              {...register("permanentAddress")}
-            />
-            {errors.permanentAddress && (
-              <p className="text-red-500 text-sm">
-                {errors.permanentAddress.message}
-              </p>
-            )}
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-blue-500 text-white hover:bg-blue-600"
-          >
-            Register
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <Button
+                type="submit"
+                className="w-full bg-blue-500 text-white hover:bg-blue-600"
+              >
+                Register
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
