@@ -13,29 +13,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(6, "Password must be at least 6 characters"),
+const newPasswordSchema = z.object({
+    newPassword: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-export default function ResetPassword() {
+export default function NewPassword() {
   const form = useForm({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(newPasswordSchema),
     defaultValues: {
-      password: "",
+      newPassword: "",
       confirmPassword: "",
     },
   });
 
   const onSubmit = (data: unknown) => {
-    console.log("Password Reset Data:", data);
+    console.log("newPassword Data:", data);
     alert("new Password created");
-    // Handle password reset logic here
   };
 
   return (
@@ -48,7 +46,7 @@ export default function ResetPassword() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="password"
+              name="newPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-gray-700">New Password</FormLabel>
@@ -90,7 +88,7 @@ export default function ResetPassword() {
               type="submit"
               className="w-full rounded-lg bg-blue-600 py-2 text-white hover:bg-blue-700"
             >
-              Reset Password
+              Create Password
             </Button>
           </form>
         </Form>
