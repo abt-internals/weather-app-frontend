@@ -14,7 +14,7 @@ export default function Home() {
             width={90}
             height={40}
           />
-          <h1 className="font-bold text-neutral-900 text-xl">Weather App</h1>
+          <h1 className="font-bold text-4xl text-neutral-900">Weather App</h1>
         </div>
         <div className="flex gap-4">
           <Link href="/loginpage">
@@ -31,12 +31,12 @@ export default function Home() {
       {/* Content Section */}
       <main
         className="flex min-h-screen flex-col items-center justify-center bg-center bg-cover p-4"
-        style={{ backgroundImage: "url('/background.jpg')" }}
+        style={{ backgroundImage: "url('/background.png')" }}
       >
-        <h2 className="font-bold text-4xl text-white shadow-md">
+        <h2 className="bg-black p-2 font-bold text-4xl text-white shadow-md">
           Welcome to Weather App
         </h2>
-        <p className="mt-2 text-lg text-white">
+        <p className="mt-2 bg-black p-1 text-lg text-sky-400">
           Get real-time weather updates with ease.
         </p>
       </main>

@@ -29,7 +29,15 @@ const schema = z.object({
   email: z.string().email("Invalid email address"),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long." }),
+    .min(8, "Password should have at least 8 characters")
+    .max(16, "Password should have at most 16 characters")
+    .refine(
+      (value) =>
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
+          value
+        ),
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
   mobile: z.string().regex(/^\d{10}$/, "Invalid mobile number"),
   dob: z.string(),
   gender: z.enum(["Male", "Female", "Other"], {
@@ -38,7 +46,11 @@ const schema = z.object({
   country: z.string().min(1, "Country is required"),
   state: z.string().min(1, "State is required"),
   city: z.string().min(1, "City is required"),
-  pincode: z.string().max(6, "Pincode is required"),
+  pincode: z
+    .string()
+    .min(6)
+    .max(6)
+    .regex(/^[0-9]+$/),
   permanentAddress: z.string().min(5, "Permanent address is required"),
   temperaryAddress: z.string().min(5, "Temperary address is required"),
 });
@@ -102,6 +114,7 @@ export default function RegistrationForm() {
 
   const onSubmit = (data: z.infer<typeof schema>) => {
     console.log("Form Data:", data);
+    alert("registration completed");
   };
 
   return (

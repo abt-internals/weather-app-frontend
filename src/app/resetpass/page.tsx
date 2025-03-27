@@ -18,9 +18,20 @@ const resetPasswordSchema = z
     oldPassword: z
       .string()
       .min(6, "Old password must be at least 6 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
+    password: z
+      .string()
+      .min(8, "Password should have at least 8 characters")
+      .max(16, "Password should have at most 16 characters")
+      .refine(
+        (value) =>
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
+            value
+          ),
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
   })
+
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],

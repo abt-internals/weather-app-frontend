@@ -13,8 +13,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const newPasswordSchema = z.object({
-    newPassword: z.string().min(6, "Password must be at least 6 characters"),
+const newPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, "Password should have at least 8 characters")
+      .max(16, "Password should have at most 16 characters")
+      .refine(
+        (value) =>
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
+            value
+          ),
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
