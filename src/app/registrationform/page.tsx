@@ -25,12 +25,17 @@ import * as z from "zod";
 const schema = z.object({
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
-  userName: z.string().min(2, "user name is required"),
-  email: z.string().email("Invalid email address"),
+  userName: z
+    .string()
+    .min(2, "user name is required")
+    .regex(
+      /^[\w.]{1,30}$/,
+      "Username should contain no special characters except '_' and '.'"
+    ),
+  email: z.string().regex(/^\w+@[\w]+\.\w{2,}$/, "Invalid email address"),
   password: z
     .string()
     .min(8, "Password should have at least 8 characters")
-    .max(16, "Password should have at most 16 characters")
     .refine(
       (value) =>
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
@@ -39,7 +44,12 @@ const schema = z.object({
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
     ),
   mobile: z.string().regex(/^\d{10}$/, "Invalid mobile number"),
-  dob: z.string(),
+  dob: z
+    .string()
+    .regex(
+      /^[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/,
+      "Invalid Format !!! Date Should be in format /YYYY/MM/DD. Month Should be below 12 and Date should be below 31"
+    ),
   gender: z.enum(["Male", "Female", "Other"], {
     required_error: "Gender is required",
   }),
@@ -67,7 +77,7 @@ const countryStateCity: Record<string, Record<string, string[]>> = {
 };
 
 export default function RegistrationForm() {
-  const form = useForm<z.infer<typeof schema>>({
+  const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       firstName: "",
@@ -210,7 +220,11 @@ export default function RegistrationForm() {
                         Password <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="for eg. Abcd@1234"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -226,7 +240,11 @@ export default function RegistrationForm() {
                     <FormItem>
                       <FormLabel>Date of Birth</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input
+                          type="text"
+                          placeholder="YYYY/MM/DD"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

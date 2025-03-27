@@ -50,7 +50,6 @@ export default function ResetPassword() {
   const onSubmit = (data: unknown) => {
     console.log("Password Reset Data:", data);
     alert("Reset Password");
-    // Handle password reset logic here
   };
 
   return (
@@ -89,7 +88,7 @@ export default function ResetPassword() {
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Enter new password"
+                      placeholder="for eg. Abcd@1234"
                       className="w-full rounded-lg border p-2"
                       {...field}
                     />

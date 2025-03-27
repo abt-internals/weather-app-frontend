@@ -16,19 +16,22 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().regex(/^\w+@[\w]+\.\w{2,}$/, "Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export default function LoginForm() {
-  // const router = useRouter();
   const form = useForm({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = (data: unknown) => {
     console.log("Login Data:", data);
-    // router.push("/dashboard");
+    alert("Login successful");
   };
 
   return (

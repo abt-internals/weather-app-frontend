@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().regex(/^\w+@[\w]+\.\w{2,}$/, "Invalid email address"),
   otp: z
     .string()
     .length(6, { message: "OTP must be 6 digits" })

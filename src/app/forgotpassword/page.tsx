@@ -18,7 +18,6 @@ const newPasswordSchema = z
     newPassword: z
       .string()
       .min(8, "Password should have at least 8 characters")
-      .max(16, "Password should have at most 16 characters")
       .refine(
         (value) =>
           /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
