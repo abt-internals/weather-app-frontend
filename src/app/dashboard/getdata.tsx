@@ -70,10 +70,10 @@
 // }
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import api from "../../lib/api";
 import type { AxiosError } from "axios"; // Import AxiosError for proper typing
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import api from "../../lib/api";
 
 export default function Dashboard() {
   const router = useRouter();
