@@ -1,70 +1,302 @@
+// "use client";
+
+// import { Button } from "@/components/ui/button";
+// import {
+//   Form,
+//   FormControl,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   FormMessage,
+// } from "@/components/ui/form";
+// import { Input } from "@/components/ui/input";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import Link from "next/link";
+// import { useForm } from "react-hook-form";
+// import { z } from "zod";
+// import api from "../../lib/api";
+// import { useRouter } from "next/navigation";
+
+// const loginSchema = z.object({
+//   email: z.string().email("Invalid email address"),
+//   password: z.string().min(6, "Password must be at least 6 characters"),
+// });
+
+// export default function LoginForm() {
+//   const router = useRouter();
+//   const form = useForm({
+//     resolver: zodResolver(loginSchema),
+//     defaultValues: {
+//       email: "",
+//       password: "",
+//     },
+//   });
+
+//   // const onSubmit = async (data) => {
+//   //   try {
+//   //     const response = await api.post("/login", {
+//   //       : data.email,
+//   //       password: data.password,
+//   //     });
+//   //     localStorage.setItem("access_token", response.data.access_token);
+//   //     localStorage.setItem("refresh_token", response.data.refresh_token);
+//   //     console.log("Login successful, tokens stored:", response.data);
+//   //     router.push("/dashboard");
+//   //   } catch (error) {
+//   //     if (error.response) {
+//   //       console.error("Login failed:", error.response.status, error.response.data);
+//   //       form.setError("root", {
+//   //         type: "manual",
+//   //         message: error.response.data?.message || "Login failed. Please check your credentials.",
+//   //       });
+//   //     } else {
+//   //       console.error("Network error:", error.message);
+//   //       form.setError("root", {
+//   //         type: "manual",
+//   //         message: "Network error. Please check your connection or server status.",
+//   //       });
+//   //     }
+//   //   }
+//   // };
+//   const onSubmit = async (data: { email: string | Blob; password: string | Blob; }) => {
+//     try {
+//       const formData = new FormData();
+//       formData.append("username", data.email);
+//       formData.append("password", data.password);
+
+//       const response = await api.post("/login", formData, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
+
+//       localStorage.setItem("access_token", response.data.access_token);
+//       localStorage.setItem("refresh_token", response.data.refresh_token);
+//       console.log("Login successful, tokens stored:", response.data);
+//       router.push("/dashboard");
+//       // window.location.href = "https://0aee-2401-4900-7c75-17f1-6c98-3d8c-e2f7-ebf7.ngrok-free.app/dashboard";
+//     } catch (error) {
+//       console.error("Login failed:", error);
+//       form.setError("root", {
+//         type: "manual",
+//         message: error.response?.data?.message || "Login failed.",
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+//       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+//         <h2 className="mb-4 text-center font-semibold text-2xl">Login</h2>
+//         <Form {...form}>
+//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+//             <FormField
+//               control={form.control}
+//               name="email"
+//               render={({ field }) => (
+//                 <FormItem>
+//                   <FormLabel>Email</FormLabel>
+//                   <FormControl>
+//                     <Input
+//                       type="email"
+//                       placeholder="Enter your email"
+//                       {...field}
+//                     />
+//                   </FormControl>
+//                   <FormMessage />
+//                 </FormItem>
+//               )}
+//             />
+//             <FormField
+//               control={form.control}
+//               name="password"
+//               render={({ field }) => (
+//                 <FormItem>
+//                   <FormLabel>Password</FormLabel>
+//                   <FormControl>
+//                     <Input
+//                       type="password"
+//                       placeholder="Enter your password"
+//                       {...field}
+//                     />
+//                   </FormControl>
+//                   <FormMessage />
+//                 </FormItem>
+//               )}
+//             />
+//             {form.formState.errors.root && (
+//               <p className="text-red-600 text-sm">
+//                 {form.formState.errors.root.message}
+//               </p>
+//             )}
+//             <div className="text-right">
+//               <Link
+//                 href="/validationpass"
+//                 className="text-blue-600 text-sm hover:underline"
+//               >
+//                 Forgot Password?
+//               </Link>
+//             </div>
+//             <Button type="submit" className="w-full">
+//               Login
+//             </Button>
+//           </form>
+//         </Form>
+//         <p className="mt-4 text-center text-sm">
+//           Don't have an account?{" "}
+//           <Link
+//             href="/registrationform"
+//             className="text-blue-600 hover:underline"
+//           >
+//             Register here
+//           </Link>
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import api from "../../lib/api";
 
+import type { AxiosError } from "axios"; // Import AxiosError for proper error typing
+
+// Define validation schema using Zod
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+// Define TypeScript types for form data
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
+
 export default function LoginForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const router = useRouter();
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const onSubmit = (data: unknown) => {
-    console.log("Login Data:", data);
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      const formData = new FormData();
+      formData.append("username", data.email);
+      formData.append("password", data.password);
+
+      const response = await api.post("/login", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      localStorage.setItem("access_token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      console.log("Login successful, tokens stored:", response.data);
+
+      router.push("/dashboard");
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
+
+      console.error("Login failed:", error);
+
+      const errorMessage =
+        error.response?.data?.message || "Login failed. Please try again.";
+
+      form.setError("root", {
+        type: "manual",
+        message: errorMessage,
+      });
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-center font-semibold text-2xl">Login</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Label className="block font-medium text-sm">Email</Label>
-            <Input
-              type="email"
-              {...register("email")}
-              placeholder="Enter your email"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
-            )}
-          </div>
-          <div>
-            <Label className="block font-medium text-sm">Password</Label>
-            <Input
-              type="password"
-              {...register("password")}
-              placeholder="Enter your password"
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
+            {form.formState.errors.root && (
+              <p className="text-red-600 text-sm">
+                {form.formState.errors.root.message}
+              </p>
             )}
-          </div>
-          <div className="text-right">
-            <Link
-              href="/forgot-password"
-              className="text-blue-600 text-sm hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-          <Button type="submit" className="w-full">
-            Login
-          </Button>
-        </form>
+            <div className="text-right">
+              <Link
+                href="/validationpass"
+                className="text-blue-600 text-sm hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
+        </Form>
+        <p className="mt-4 text-center text-sm">
+          Don't have an account?{" "}
+          <Link
+            href="/registrationform"
+            className="text-blue-600 hover:underline"
+          >
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );
