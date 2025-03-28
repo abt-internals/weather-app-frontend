@@ -1,5 +1,11 @@
+import Dashboard from "./getdata";
+
 const page = () => {
-  return <div>jhg</div>;
+  return (
+    <div>
+      <Dashboard />
+    </div>
+  );
 };
 
 export default page;
