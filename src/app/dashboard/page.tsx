@@ -3,7 +3,7 @@ import UserDashboard from "./dashboard";
 const page = () => {
   return (
     <div>
-      <UserDashboard/>
+      <UserDashboard />
     </div>
   );
 };
