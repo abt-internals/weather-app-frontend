@@ -1,5 +1,11 @@
+import UserDashboard from "./dashboard";
+
 const page = () => {
-  return <div>jhg</div>;
+  return (
+    <div>
+      <UserDashboard/>
+    </div>
+  );
 };
 
 export default page;

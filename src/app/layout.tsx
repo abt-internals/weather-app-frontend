@@ -5,30 +5,30 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme";
 
 export const metadata: Metadata = {
-  title: "Next Essential | Elementary",
+  title: "ABT | Weather App",
   description:
     "Next Essential - An Essential Template to get started with Next.js application with all the essentials included...",
   icons: {
     icon: "favicon.png",
   },
   openGraph: {
-    title: "Next Essential | Elementary",
+    title: "ABT | Weather App",
     description:
       "Next Essential - An Essential Template to get started with Next.js application with all the essentials included...",
     url: "https://elementary.vgseven.com",
-    siteName: "Next Essential | Elementary",
+    siteName: "ABT | Weather App",
     images: [
       {
         url: "https://odouepjkxheu5esn.public.blob.vercel-storage.com/vgseven/vgseven-banner.png",
         width: 800,
         height: 600,
-        alt: "Next Essential",
+        alt: "ABT | Weather App",
       },
       {
         url: "https://odouepjkxheu5esn.public.blob.vercel-storage.com/vgseven/vgseven-banner.png",
         width: 1800,
         height: 1600,
-        alt: "Next Essential",
+        alt: "ABT | Weather App",
       },
     ],
     locale: "en_US",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Next Essential | Elementary",
+    title: "ABT | Weather App",
     description:
       "Next Essential - An Essential Template to get started with Next.js application with all the essentials included...",
     images: [
