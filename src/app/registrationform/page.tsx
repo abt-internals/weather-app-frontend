@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -36,19 +37,39 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "Password should have at least 8 characters")
-    .refine(
-      (value) =>
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
-          value
-        ),
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    ),
+    .superRefine((value, ctx) => {
+      if (!/[A-Z]/.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must contain an uppercase letter",
+        });
+      }
+      if (!/[a-z]/.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must contain a lowercase letter",
+        });
+      }
+      if (!/[0-9]/.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must contain a number",
+        });
+      }
+      if (!/[@$!%*?&]/.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must contain a special character",
+        });
+      }
+    }),
+
   mobile: z.string().regex(/^\d{10}$/, "Invalid mobile number"),
   dob: z
     .string()
     .regex(
       /^[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/,
-      "Invalid Format !!! Date Should be in format /YYYY/MM/DD. Month Should be below 12 and Date should be below 31"
+      "Invalid Format !!! Date Should be in format YYYY/MM/DD. Month Should be below 12 and Date should be below 31"
     ),
   gender: z.enum(["Male", "Female", "Other"], {
     required_error: "Gender is required",
@@ -62,7 +83,8 @@ const schema = z.object({
     .max(6)
     .regex(/^[0-9]+$/),
   permanentAddress: z.string().min(5, "Permanent address is required"),
-  temperaryAddress: z.string().min(5, "Temperary address is required"),
+  // temperaryAddress: z.string().min(5, "Temperary address is required"),
+  // terms:z.string().min(4, "Temperary address is required"),
 });
 
 const countryStateCity: Record<string, Record<string, string[]>> = {
@@ -93,12 +115,13 @@ export default function RegistrationForm() {
       city: "",
       pincode: "",
       permanentAddress: "",
-      temperaryAddress: "",
+      // temperaryAddress: "",
     },
   });
 
   const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
+  const [showLocationFields, setShowLocationFields] = useState(false);
   const selectedCountry = form.watch("country");
 
   const handleCountryChange = (value: string) => {
@@ -128,8 +151,22 @@ export default function RegistrationForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+    <div
+      className="flex min-h-screen flex-col items-center justify-center bg-center bg-cover"
+      style={{ backgroundImage: "url('/image.png')" }}
+    >
+      <h1 className="mb-6 font-extrabold text-3xl text-white shadow-lg">
+        Welcome To <span className="text-red-500">Weather Application</span>
+      </h1>
+      <Card
+        className="w-full max-w-lg rounded-2xl bg-center bg-cover bg-white p-6 shadow-xl"
+        style={{ backgroundImage: "url('/image1.png')" }}
+      >
+        <CardHeader>
+          <CardTitle className="text-center font-bold text-2xl text-gray-700">
+            Registration Form
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -139,7 +176,9 @@ export default function RegistrationForm() {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel>
+                        First Name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -152,7 +191,9 @@ export default function RegistrationForm() {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                      <FormLabel>
+                        Last Name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -238,7 +279,9 @@ export default function RegistrationForm() {
                   name="dob"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
+                      <FormLabel>
+                        Date of Birth<span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="text"
@@ -255,7 +298,9 @@ export default function RegistrationForm() {
                   name="gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gender</FormLabel>
+                      <FormLabel>
+                        Gender<span className="text-red-500">*</span>
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
@@ -277,135 +322,24 @@ export default function RegistrationForm() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
+              {/* <FormField
                   control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleCountryChange(value);
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Object.keys(countryStateCity).map((country) => (
-                            <SelectItem key={country} value={country}>
-                              {country}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleStateChange(value);
-                        }}
-                        value={field.value}
-                        disabled={!states.length}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select State" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {states.map((state) => (
-                            <SelectItem key={state} value={state}>
-                              {state}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        disabled={!cities.length}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select City" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {cities.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pincode"
+                  name="temperaryAddress"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Pincode <span className="text-red-500">*</span>
+                        Temperary Address <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input type="pincode" {...field} />
+                        <textarea
+                          className="w-full rounded-md border-2 border-stone-200 p-2"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="temperaryAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Temperary Address <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <textarea
-                        className="w-full rounded-md border-2 border-stone-200 p-2"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                /> */}
 
               <FormField
                 control={form.control}
@@ -418,6 +352,7 @@ export default function RegistrationForm() {
                     <FormControl>
                       <textarea
                         className="w-full rounded-md border-2 border-stone-200 p-2"
+                        placeholder=" eg. A/P.Karad tal-karad dist-satara 415110 "
                         {...field}
                       />
                     </FormControl>
@@ -425,6 +360,138 @@ export default function RegistrationForm() {
                   </FormItem>
                 )}
               />
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="toggleLocation"
+                  className="border-red-800"
+                  checked={showLocationFields}
+                  onCheckedChange={() =>
+                    setShowLocationFields(!showLocationFields)
+                  }
+                />
+                <label
+                  htmlFor="toggleLocation"
+                  className="font-medium text-black text-sm underline decoration-red-800"
+                >
+                  Temperary Address <span className="text-red-500">*</span>
+                </label>
+              </div>
+
+              {showLocationFields && (
+                <>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              handleCountryChange(value);
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Country" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.keys(countryStateCity).map((country) => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              handleStateChange(value);
+                            }}
+                            value={field.value}
+                            disabled={!states.length}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select State" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {states.map((state) => (
+                                <SelectItem key={state} value={state}>
+                                  {state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={!cities.length}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select City" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {cities.map((city) => (
+                                <SelectItem key={city} value={city}>
+                                  {city}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="pincode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Pincode <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
 
               <Button
                 type="submit"
