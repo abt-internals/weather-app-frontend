@@ -22,7 +22,7 @@ export default function Home() {
               Login
             </Button>
           </Link>
-          <Link href="/registrationform">
+          <Link href="/registration">
             <Button className="bg-white text-blue-600">Register</Button>
           </Link>
         </div>

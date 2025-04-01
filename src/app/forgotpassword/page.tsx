@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -18,13 +20,32 @@ const newPasswordSchema = z
     newPassword: z
       .string()
       .min(8, "Password should have at least 8 characters")
-      .refine(
-        (value) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(
-            value
-          ),
-        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-      ),
+      .superRefine((value, ctx) => {
+        if (!/[A-Z]/.test(value)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must contain an uppercase letter",
+          });
+        }
+        if (!/[a-z]/.test(value)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must contain a lowercase letter",
+          });
+        }
+        if (!/[0-9]/.test(value)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must contain a number",
+          });
+        }
+        if (!/[@$!%*?&]/.test(value)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Must contain a special character",
+          });
+        }
+      }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -41,30 +62,48 @@ export default function NewPassword() {
     },
   });
 
+  const router = useRouter();
+
   const onSubmit = (data: unknown) => {
     console.log("newPassword Data:", data);
-    alert("new Password created");
+    alert("New password created");
+    router.push("/loginpage");
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-center font-semibold text-2xl text-gray-800">
-          Create new Password
+    <div className="flex min-h-screen flex-col md:flex-row">
+      {/* Left Section */}
+      <div className="relative hidden w-full md:w-1/2 lg:flex">
+        <Image
+          src="/image.png"
+          alt="Background Illustration"
+          layout="fill"
+          objectFit="cover"
+          className="absolute"
+        />
+      </div>
+
+      {/* Right Section - Form */}
+      <div className="flex w-full flex-col items-center justify-center bg-gray-900 p-6 text-white shadow-lg md:w-1/2">
+        <h2 className="mb-6 text-center font-bold text-2xl text-teal-400 md:text-3xl">
+          Create New Password
         </h2>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full max-w-md space-y-4"
+          >
             <FormField
               control={form.control}
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">New Password</FormLabel>
+                  <FormLabel className="text-gray-300">New Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Enter new password"
-                      className="w-full rounded-lg border p-2"
+                      className="w-full rounded-lg border p-2 text-black"
                       {...field}
                     />
                   </FormControl>
@@ -78,14 +117,14 @@ export default function NewPassword() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">
+                  <FormLabel className="text-gray-300">
                     Confirm Password
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Confirm new password"
-                      className="w-full rounded-lg border p-2"
+                      className="w-full rounded-lg border p-2 text-black"
                       {...field}
                     />
                   </FormControl>

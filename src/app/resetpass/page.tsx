@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -53,10 +54,22 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-center font-semibold text-2xl text-gray-800">
-          Reset Password
+    <div className="flex min-h-screen">
+      {/* Left Section */}
+      <div className="relative hidden w-1/2 lg:flex">
+        <Image
+          src="/image.png"
+          alt="Background Illustration"
+          layout="fill"
+          objectFit="cover"
+          className="absolute"
+        />
+      </div>
+
+      {/* Right Section - Form */}
+      <div className="flex w-full flex-col items-center justify-center bg-gray-900 p-10 text-white shadow-lg lg:w-1/2">
+        <h2 className="mb-6 text-center font-bold text-3xl text-teal-400">
+          Registration Form
         </h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -65,7 +78,9 @@ export default function ResetPassword() {
               name="oldPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Old Password</FormLabel>
+                  <FormLabel className="text-neutral-300">
+                    Old Password
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -84,7 +99,9 @@ export default function ResetPassword() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">New Password</FormLabel>
+                  <FormLabel className="text-neutral-300">
+                    New Password
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -103,7 +120,7 @@ export default function ResetPassword() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">
+                  <FormLabel className="text-neutral-300">
                     Confirm Password
                   </FormLabel>
                   <FormControl>
