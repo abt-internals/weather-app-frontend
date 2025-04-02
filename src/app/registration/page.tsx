@@ -17,19 +17,17 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const schema = z.object({
-  firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
-  userName: z
+  first_name: z.string().min(2, "First name is required"),
+  last_name: z.string().min(2, "Last name is required"),
+  username: z
     .string()
-    .min(2, "user name is required")
-    .regex(
-      /^[\w.]{1,30}$/,
-      "Username should contain no special characters except '_' and '.'"
-    ),
-  mobile: z.string().regex(/^\d{10}$/, "Invalid mobile number"),
-
+    .min(2, "Username is required")
+    .regex(/^[\w.]{1,30}$/, "Only '_' and '.' are allowed in username"),
+  mobile: z
+    .string()
+    .regex(/^\d{12}$/, "start with 91 Invalid mobile number must be 12 number"),
   email: z.string().regex(/^\w+@[\w]+\.\w{2,}$/, "Invalid email address"),
-  password: z
+  passwords: z
     .string()
     .min(8, "Password should have at least 8 characters")
     .superRefine((value, ctx) => {
@@ -64,19 +62,21 @@ export default function Register() {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      userName: "",
+      first_name: "",
+      last_name: "",
+      username: "",
       mobile: "",
       email: "",
-      password: "",
+      passwords: "",
     },
   });
 
   const router = useRouter();
 
-  const onSubmit = (data: unknown) => {
-    console.log(data);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const onSubmit = (data: any) => {
+    localStorage.setItem("formStep1", JSON.stringify(data)); // Store in localStorage
+    console.log("Step 1 Data:", data);
     router.push("/personaldetail");
   };
 
@@ -109,7 +109,7 @@ export default function Register() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="firstName"
+                name="first_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
@@ -122,7 +122,7 @@ export default function Register() {
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
@@ -137,7 +137,7 @@ export default function Register() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="userName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Username</FormLabel>
@@ -186,7 +186,7 @@ export default function Register() {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="passwords"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>

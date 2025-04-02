@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,60 +20,70 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+// Schema Validation with zod
 const schema = z.object({
-  dob: z
+  date_of_birth: z
     .string()
     .regex(
-      /^[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/,
-      "Invalid Format !!! Date Should be in format YYYY/MM/DD. Month Should be below 12 and Date should be below 31"
+      /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/,
+      "Format: YYYY/MM/DD"
     ),
   gender: z.enum(["Male", "Female", "Other"], {
     required_error: "Gender is required",
   }),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
+  temp_address: z.string().min(5, "Permanent address is required"),
+  perm_address: z.string().min(5, "Permanent address is required"),
+
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
   pincode: z
     .string()
-    .min(6)
-    .max(6)
-    .regex(/^[0-9]+$/),
-  permanentAddress: z.string().min(5, "Permanent address is required"),
+    .regex(/^\d{6}$/, "Invalid pincode")
+    .optional(),
 });
 
-const countryStateCity: Record<string, Record<string, string[]>> = {
-  India: {
-    Maharashtra: ["Mumbai", "Pune", "Satara"],
-    Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
-  },
-  USA: {
-    California: ["Los Angeles", "San Francisco", "San Diego"],
-    Texas: ["Houston", "Austin", "Dallas"],
-  },
-};
-
-export default function RegistrationForm() {
+export default function PersonalDetails() {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      dob: "",
+      date_of_birth: "",
       gender: undefined,
+      temp_address: "",
+      perm_address: "",
+
       country: "",
       state: "",
       city: "",
       pincode: "",
-      permanentAddress: "",
     },
   });
-
   const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [showLocationFields, setShowLocationFields] = useState(false);
-  const selectedCountry = form.watch("country");
+  const [step1Data, setStep1Data] = useState({});
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("formStep1");
+    if (savedData) {
+      setStep1Data(JSON.parse(savedData));
+    }
+  }, []);
+
+  const countryStateCity: Record<string, Record<string, string[]>> = {
+    India: {
+      Maharashtra: ["Mumbai", "Pune", "Nagpur"],
+      Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
+    },
+    USA: {
+      California: ["Los Angeles", "San Francisco", "San Diego"],
+      Texas: ["Houston", "Austin", "Dallas"],
+    },
+  };
 
   const handleCountryChange = (value: string) => {
     form.setValue("country", value);
@@ -87,17 +98,61 @@ export default function RegistrationForm() {
 
   const handleStateChange = (value: string) => {
     form.setValue("state", value);
-    const newCities =
-      selectedCountry && countryStateCity[selectedCountry]?.[value]
-        ? countryStateCity[selectedCountry][value]
-        : [];
-    setCities(newCities);
+    const selectedCountry = form.getValues("country");
+
+    if (selectedCountry && countryStateCity[selectedCountry]) {
+      const newCities = countryStateCity[selectedCountry][value] || [];
+      setCities(newCities);
+    } else {
+      setCities([]);
+    }
+
     form.setValue("city", "");
   };
 
-  const onSubmit = (data: unknown) => {
-    console.log("Form Data:", data);
-    alert("registration completed");
+  // Handle form submission
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const onSubmit = async (data: any) => {
+    const finalData = { ...step1Data, ...data };
+
+    console.log("Final Registration Data:", JSON.stringify(finalData, null, 2));
+
+    // Validate before sending
+    const validationResult = schema.safeParse(finalData);
+    if (!validationResult.success) {
+      console.error("Validation Error:", validationResult.error);
+      alert("Validation failed. Please check your inputs.");
+      return;
+    }
+
+    try {
+      await dataIntegrate(finalData);
+      alert("Registration Completed");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
+    }
+  };
+
+  // Send data to API
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const dataIntegrate = async (formData: any) => {
+    try {
+      const response = await fetch(
+        "https://812c-103-200-214-122.ngrok-free.app/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const result = await response.json();
+      console.log("Server Response:", result);
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   };
 
   return (
@@ -110,7 +165,7 @@ export default function RegistrationForm() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="dob"
+                name="date_of_birth"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -148,10 +203,25 @@ export default function RegistrationForm() {
                 )}
               />
             </div>
-
             <FormField
               control={form.control}
-              name="permanentAddress"
+              name="temp_address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Temporary Address *</FormLabel>
+                  <FormControl>
+                    <textarea
+                      className="w-full rounded-md border-2 border-stone-200 p-2"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="perm_address"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -182,11 +252,12 @@ export default function RegistrationForm() {
                 htmlFor="toggleLocation"
                 className="font-medium text-black text-sm underline decoration-red-800"
               >
-                <ul className="text-white"> Temperary Address</ul>{" "}
-                <span className="text-red-500">*</span>
+                <li className="text-white">
+                  {" "}
+                  Temperary Address <span className="text-red-500">*</span>
+                </li>{" "}
               </label>
             </div>
-
             {showLocationFields && (
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
